@@ -35,7 +35,11 @@ jobs:
 
       - name: Trigger Copr rebuild via webhook
         if: steps.diff.outputs.changed == 'true'
-        run: curl -fsSL -X POST "${{ secrets.COPR_WEBHOOK_URL }}"
+        env:
+          WEBHOOK_URL: ${{ secrets.COPR_WEBHOOK_URL }}
+        run: |
+          clean_url=$(printf '%s' "$WEBHOOK_URL" | tr -d '\n\r' | xargs)
+          curl -fsSL -X POST "$clean_url"
 
       - name: Record new version
         if: steps.diff.outputs.changed == 'true'
